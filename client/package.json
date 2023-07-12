@@ -25,7 +25,9 @@
       "react-app",
       "react-app/jest"
     ]
-  },  "browserslist": [
+  }, 
+    "proxy": "https://redis-node-server.adaptable.app/",
+  "browserslist": [
     ">0.2%",
     "not dead",
     "not op_mini all"
