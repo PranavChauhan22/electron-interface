@@ -91,6 +91,7 @@ const useChatHandlers = (/** @type {import("../../state").UserEntry} */ user) =>
       // @ts-ignore
       const room = await addRoom(userId, user.id);
       roomId = room.id;
+      console.log(roomId,userId,user.id);
       /** We need to set this room id to user. */
       dispatch({ type: "set user", payload: { ...targetUser, room: roomId } });
       /** Then a new room should be added to the store. */

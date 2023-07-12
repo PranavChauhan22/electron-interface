@@ -9,8 +9,10 @@ import { parseRoomName } from "./utils";
 import { LoadingScreen } from "./components/LoadingScreen";
 import Navbar from "./components/Navbar";
 import { useSocket, useUser } from "./hooks";
+import { addRoom } from "./api";
 
 const App = () => {
+  
   const {
     loading,
     user,
@@ -21,10 +23,10 @@ const App = () => {
     onLogOut,
   } = useAppHandlers();
 
+
   if (loading) {
     return <LoadingScreen />;
   }
-
   const showLogin = !user;
 
   return (
@@ -64,6 +66,7 @@ const useAppHandlers = () => {
 
   /** Socket joins specific rooms once they are added */
   useEffect(() => {
+
     if (user === null) {
       /** We are logged out */
       /** But it's necessary to pre-populate the main room, so the user won't wait for messages once he's logged in */
@@ -108,6 +111,7 @@ const useAppHandlers = () => {
 
   /** Populate default rooms when user is not null */
   useEffect(() => {
+    
     if (Object.values(state.rooms).length === 0 && user !== null) {
       /** First of all fetch online users. */
       getOnlineUsers().then((users) => {
@@ -131,6 +135,7 @@ const useAppHandlers = () => {
       });
     }
   }, [dispatch, state.rooms, user]);
+
 
   const onMessageSend = useCallback(
     (message, roomId) => {

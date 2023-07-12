@@ -6,6 +6,7 @@ import Footer from "./components/Footer";
 const ChatList = ({ rooms, dispatch, user, currentRoom, onLogOut }) => {
   const processedRooms = useMemo(() => {
     const roomsList = Object.values(rooms);
+    console.log(roomsList);
     const main = roomsList.filter((x) => x.id === "0");
     let other = roomsList.filter((x) => x.id !== "0");
     other = other.sort(

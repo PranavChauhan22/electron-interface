@@ -5,19 +5,37 @@ import Logo from "../Logo";
 import "./style.css";
 import { useEffect } from "react";
 
-const DEMO_USERS = ["Pablo", "Joe", "Mary", "Alex"];
-
 export default function Login({ onLogIn }) {
+  const [DEMO_USERS, setDEMO_USERS] = useState([""]);
+  console.log(DEMO_USERS);
   const [username, setUsername] = useState(
     () => DEMO_USERS[Math.floor(Math.random() * DEMO_USERS.length)]
   );
+
   const [password, setPassword] = useState("password123");
   const [error, setError] = useState(null);
 
   const onSubmit = async (event) => {
     event.preventDefault();
+    console.log(username);
     onLogIn(username, password, setError);
   };
+
+  // @ts-ignore
+  useEffect(async () => {
+
+    const resp=await fetch("http://localhost:4000/members", {
+      method: "GET",
+    })
+    const DATA=await resp.json();
+    let OBJ = [];
+    for (let index = 0; index < DATA.length; index++) {
+      const element = DATA[index];
+      OBJ.push(element.displayName);
+    }
+    OBJ.sort();
+    setDEMO_USERS(OBJ);
+  }, []);
 
   return (
     <>

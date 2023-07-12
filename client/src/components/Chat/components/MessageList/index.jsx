@@ -27,6 +27,7 @@ const MessageList = ({
     ) : (
       <></>
     )}
+    
     <div className="px-4 pt-5 chat-box position-absolute">
       {messages && messages.length !== 0 && (
         <>
@@ -70,6 +71,7 @@ const MessageList = ({
                 />
               );
             }
+            console.log(users);
             return (
               <ReceiverMessage
                 username={

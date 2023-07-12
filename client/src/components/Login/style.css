@@ -30,8 +30,9 @@
   border-radius: 4px !important;
   width: 100% !important;
   text-align: left !important;
-  height: calc(1.5em + 0.94rem + 2px) !important;
-
+  /* height: calc(1.5em + 0.94rem + 2px) !important; */
+  
+  
   cursor: pointer;
 }
 
@@ -78,4 +79,9 @@
   .username-select-block
   .username-select-block-item:hover {
   background-color: var(--light);
+}
+.username-select-block{
+ overflow-y: scroll;
+ height: 400px;
+
 }

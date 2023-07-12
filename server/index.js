@@ -1,13 +1,30 @@
 // @ts-check
+const moment = require('moment');
 const express = require("express");
 const bcrypt = require("bcrypt");
 const session = require("express-session");
+const cors=require("cors");
 const bodyParser = require("body-parser");
 /** @ts-ignore */
 const randomName = require("node-random-name");
 let RedisStore = require("connect-redis")(session);
 const path = require("path");
 const fs = require("fs").promises;
+
+const addMessage = async (roomId, fromId, content, timestamp = moment().unix()) => {
+  const roomKey = `room:${roomId}`;
+
+  const message = {
+    from: fromId,
+    date: timestamp,
+    message: content,
+    roomId,
+  };
+  /** Now the other user sends the greeting to the user */
+  await zadd(roomKey, "" + message.date, JSON.stringify(message));
+  console.log("addded");
+};
+
 
 const {
   client: redisClient,
@@ -30,11 +47,13 @@ const {
   createPrivateRoom,
   sanitise,
   getMessages,
+  getMembers,
 } = require("./utils");
 const { createDemoData } = require("./demo-data");
 const { PORT, SERVER_ID } = require("./config");
 
 const app = express();
+app.use(cors());
 const server = require("http").createServer(app);
 
 /** @type {SocketIO.Server} */
@@ -100,7 +119,7 @@ const initPubSub = () => {
      * Rooms with private messages don't have a name
      */
     await set(`room:${0}:name`, "General");
-
+    console.log("Room name");
     /** Create demo data with the default users */
     await createDemoData();
   }
@@ -130,6 +149,10 @@ async function runApp() {
 
   app.get("/links", (req, res) => {
     return res.send(repoLinks);
+  });
+  app.get("/members", async(req, res) => {
+    const members=await getMembers();
+    return res.send(members);
   });
 
   io.on("connection", async (socket) => {
@@ -255,17 +278,21 @@ async function runApp() {
   /**
    * Create a private room and add users to it
    */
-  app.post("/room", auth, async (req, res) => {
+  app.post("/room", async (req, res) => {
     const { user1, user2 } = {
       user1: parseInt(req.body.user1),
       user2: parseInt(req.body.user2),
     };
+    console.log("---->",user1,user2);
 
     const [result, hasError] = await createPrivateRoom(user1, user2);
     if (hasError) {
       return res.sendStatus(400);
     }
-    return res.status(201).send(result);
+
+   await addMessage(result.id, user2, "Hey, could you please help me in a query?", moment().unix() - Math.random() * 222);
+    
+    return res.status(201).send(result);  
   });
 
   /** Fetch messages from the general chat (just to avoid loading them only once the user was logged in.) */
@@ -294,7 +321,7 @@ async function runApp() {
   });
 
   /** Check which users are online. */
-  app.get(`/users/online`, auth, async (req, res) => {
+  app.get(`/users/online`, async (req, res) => {
     const onlineIds = await smembers(`online_users`);
     const users = {};
     for (let onlineId of onlineIds) {
@@ -334,7 +361,7 @@ async function runApp() {
    * Get rooms for the selected user.
    * TODO: Add middleware and protect the other user info.
    */
-  app.get(`/rooms/:userId`, auth, async (req, res) => {
+  app.get(`/rooms/:userId`, async (req, res) => {
     const userId = req.params.userId;
     /** We got the room ids */
     const roomIds = await smembers(`user:${userId}:rooms`);

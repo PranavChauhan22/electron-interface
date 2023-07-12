@@ -1,8 +1,15 @@
 // @ts-check
-const bcrypt = require('bcrypt');
-const { incr, set, hmset, sadd, hmget, exists,
+const bcrypt = require("bcrypt");
+const {
+  incr,
+  set,
+  hmset,
+  sadd,
+  hmget,
+  exists,
+  get,
   client: redisClient,
-} = require('./redis');
+} = require("./redis");
 
 /** Redis key for the username (for getting the user id) */
 const makeUsernameKey = (username) => {
@@ -12,8 +19,8 @@ const makeUsernameKey = (username) => {
 
 /**
  * Creates a user and adds default chat rooms
- * @param {string} username 
- * @param {string} password 
+ * @param {string} username
+ * @param {string} password
  */
 const createUser = async (username, password) => {
   const usernameKey = makeUsernameKey(username);
@@ -61,15 +68,17 @@ const createPrivateRoom = async (user1, user2) => {
   await sadd(`user:${user1}:rooms`, `${roomId}`);
   await sadd(`user:${user2}:rooms`, `${roomId}`);
 
-  return [{
-    id: roomId,
-    names: [
-      await hmget(`user:${user1}`, "username"),
-      await hmget(`user:${user2}`, "username"),
-    ],
-  }, false];
+  return [
+    {
+      id: roomId,
+      names: [
+        await hmget(`user:${user1}`, "username"),
+        await hmget(`user:${user2}`, "username"),
+      ],
+    },
+    false,
+  ];
 };
-
 
 const getMessages = async (roomId = "0", offset = 0, size = 50) => {
   /**
@@ -93,11 +102,16 @@ const getMessages = async (roomId = "0", offset = 0, size = 50) => {
   }
 };
 
+const getMembers = async () => {
+  const cacheResults = await get("members");
+    // @ts-ignore
+  return JSON.parse(cacheResults);
+};
 const sanitise = (text) => {
   let sanitisedText = text;
 
-  if (text.indexOf('<') > -1 || text.indexOf('>') > -1) {
-    sanitisedText = text.replace(/</g, '&lt').replace(/>/g, '&gt');
+  if (text.indexOf("<") > -1 || text.indexOf(">") > -1) {
+    sanitisedText = text.replace(/</g, "&lt").replace(/>/g, "&gt");
   }
 
   return sanitisedText;
@@ -109,5 +123,6 @@ module.exports = {
   createUser,
   makeUsernameKey,
   createPrivateRoom,
-  getPrivateRoomId
+  getPrivateRoomId,
+  getMembers
 };

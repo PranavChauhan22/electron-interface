@@ -2,11 +2,11 @@
   "name": "Node.JS Redis chat",
   "env": {
     "REDIS_ENDPOINT_URL": {
-      "description": "A Redis cloud endpoint URL.",
+      "description": "redis://pranav:PCViditt22$@redis-15486.c240.us-east-1-3.ec2.cloud.redislabs.com:15486",
       "required": true
     },
     "REDIS_PASSWORD": {
-      "description": "A Redis password.",
+      "description": "PCViditt22$",
       "required": true
     }
   }
