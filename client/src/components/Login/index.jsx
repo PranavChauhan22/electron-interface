@@ -24,7 +24,7 @@ export default function Login({ onLogIn }) {
   // @ts-ignore
   useEffect(async () => {
 
-    const resp=await fetch("http://localhost:4000/members", {
+    const resp=await fetch("https://redis-node-server.adaptable.app/members", {
       method: "GET",
     })
     const DATA=await resp.json();
